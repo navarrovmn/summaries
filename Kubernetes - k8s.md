@@ -111,9 +111,11 @@ spec: # specification for deployment
 Internal communication on k8s is handled with labels and selectors:
 * **Labels**: defined in the metadata section, is a bunch of key-value pairs that can be anything;
 * **Selectors:** a selector uses
+
 Communication works through labels and selectors. 
 * Labels: defined in the metadata;
 * Selectors: defined in the spec, instructs the resource on how to connect to its desired resource;
+
 This part is a bit eerie, so let's get an example:
 * Suppose you have a deployment and a service definition;
 * Obviously, you want your service to forward requests to your pods. How is this reflected in your configuration files?
@@ -157,5 +159,135 @@ spec:
     - protocol: TCP
       port: 80 # port which the service itself is acessible through
       targetPort: 8080 # port to access in the POD
+```
+
+
+# MiniLab with MongoDB and MongoExpress
+___
+
+With these files, you can check out how everything described above ties together.
+```YAML
+# mongo-express-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mongodb-configmap
+data:
+  database_url: mongodb-service
+
+# mongo-express-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo-express
+  labels:
+    app: mongo-express
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongo-express
+  template:
+    metadata:
+      labels:
+        app: mongo-express
+    spec:
+      containers:
+      - name: mongo-express
+        image: mongo-express
+        ports:
+        - containerPort: 8081
+        env:
+        - name: ME_CONFIG_MONGODB_ADMINUSERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-secret
+              key: mongo-root-username
+        - name: ME_CONFIG_MONGODB_ADMINPASSWORD
+          valueFrom: 
+            secretKeyRef:
+              name: mongodb-secret
+              key: mongo-root-password
+        - name: ME_CONFIG_MONGODB_SERVER
+          valueFrom: 
+            configMapKeyRef:
+              name: mongodb-configmap
+              key: database_url
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-express-service
+spec:
+  selector:
+    app: mongo-express
+# process to make this service "external"!
+# this assigns the service an external IP address and so accepts external requests
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 8081
+      targetPort: 8081
+# the nodePort is the port where the external IP address will be open. The port we will use with IP
+# in the browser
+      nodePort: 30000
+
+
+# mongo-db-secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mongodb-secret
+type: Opaque
+data:
+  mongo-root-username: dXNlcm5hbWU= # Base64!
+  mongo-root-password: cGFzc3dvcmQ=
+
+# mongo-db-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongodb-deployment
+  labels:
+    app: mongodb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongodb
+  template:
+    metadata:
+      labels:
+        app: mongodb
+    spec:
+      containers:
+      - name: mongodb
+        image: mongo
+        ports:
+        - containerPort: 27017
+        env:
+        - name: MONGO_INITDB_ROOT_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-secret
+              key: mongo-root-username
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          valueFrom: 
+            secretKeyRef:
+              name: mongodb-secret
+              key: mongo-root-password
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb-service
+spec:
+  selector:
+    app: mongodb
+  ports:
+  - protocol: TCP
+    port: 27017
+    targetPort: 27017
+
 ```
 
