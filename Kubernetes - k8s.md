@@ -86,24 +86,24 @@ Example of a configuration file:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-	name: nginx-deployment
-labels:
-	app: nginx
+  name: nginx-deployment
+  labels:
+    app: nginx
 spec: # specification for deployment
-	replicas: 2
-	selector:
-		matchLabels: # this informs k8s that this deployment manages any pod with this label
-			app: nginx
-	template:
-		metadata:
-		labels:
-			app: nginx
-	spec: # specification for pod
-		containers:
-		- name: nginx
-     	  image: nginx:1.16
-		  ports:
-		  - containerPort: 80
+  replicas: 2
+  selector:
+    matchLabels: # this informs k8s that this deployment manages any pod with this label
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec: # specification for pod 
+      containers:
+      - name: nginx
+        image: nginx:1.16
+        ports:
+        - containerPort: 80
 ```
 
 ## Internal Communication
