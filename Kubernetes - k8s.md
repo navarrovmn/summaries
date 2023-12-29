@@ -16,6 +16,7 @@ Its main components are:
 		* Others;
 * **ConfigMap**
 	* A list of key-value pairs that a Pod can use for configuring your application;
+	* Can also host files;
 * **Secrets**
 	* Akin to ConfigMap, but for sensitive values (like passwords);
 	* Usually, we have Secret Manager services (Vault, GCP GSM) that are consumed by your k8s cluster (meaning K8S connects to these services to retrieve the value, it's not stored on the cluster itself);
@@ -23,7 +24,8 @@ Its main components are:
 	* ReplicaSet manages how a pod is replicated;
 * **Service**
 	* Pods are given internal IPs on their generation. To not need to change the address of a pod every time a new one is created, the Service was created;
-	* The service manages the connectivity to a deployment internally on a k8s cluster (it does not handle external accessibility);
+	* The service manages the connectivity to a deployment internally on a k8s cluster;
+	* Depending on the type of the service (like `LoadBalancer`), it can get assigned an external IP too;
 * **Ingress**
 	* Ingress is responsible for connecting to a service and making your app accessible externally;
 * **Volume**
@@ -35,14 +37,14 @@ Its main components are:
 
 # Architecture
 --- 
-Kubernetes is divided between **worker nodes** and **master nodes** (keep in mind you can have only one machine running both worker nodes and master nodes).
+Kubernetes is divided between **worker nodes** and **control planes** (keep in mind you can have only one machine running both worker nodes and master nodes).
 
 A **worker node** needs at least 3 processes:
 * **Container Runtime***: responsible for actually running a container. It can be Docker or any other application for that;
 * **Kubelet**: responsible for scheduling pods and containers. It acts as a interface layer between the host machine and the container runtime;
 * **Kube Proxy**: manages connectivity in the worker node, forwarding requests (with routing logics) to pods, etc;
 
-A **master node** needs at least 4 processes:
+An **control plane** needs at least 4 processes:
 * **API Server***: acts as the cluster gateway. Responsible for authenticating and processing requests or queries in the cluster. Can be interacted via UI or CLIs as the entrypoint for the cluster;
 * **Scheduler**: processes requests coming from API Server and decides (with different logics) appropriate worker nodes for the resources. Then, it sends instructions to the worker node's kubelet, which will actually schedule the resource creation;
 * **Controller Manager**: responsible for keeping the cluster faithful to the desired state all the time, by detecting changes and recovering from broken states. Interacts with Scheduler to do so;
