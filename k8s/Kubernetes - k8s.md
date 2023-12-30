@@ -72,6 +72,10 @@ $ kubectl delete deployment [deploy-name]
 $ kubectl apply -f [file_name] (example: kubectl apply -f config-file.yaml)
 $ kubectl delete -f [file_name]
 $ kubectl get pod -o wide
+$ kubectl get namespaces
+$ kubectl cluster-info
+$ kubectl create namespace my-namespace
+$ kubectl apply -f mysql-configmap.yaml --namespace=my-namespace
 ```
 
 # Kubernetes Configuration
@@ -291,5 +295,47 @@ spec:
     port: 27017
     targetPort: 27017
 
+```
+
+# Namespace
+___
+* Organized resources between namespaces;
+	* * "Virtual clusters" inside k8s cluster;
+* k8s has 4 default clusters:
+	* **kube-system**: system processes and managing processes;
+	* **kube-public**: publicly accessible data with a ConfigMap;
+	* **kube-node-lease**: assesses nodes health (heartbeats);
+	* **default**: default for creating resources;
+
+Some resources can be shared between different namespaces, such as `service`. To do so, you need to append to the data the namespace it's coming from. Example:
+
+``` YAML
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-configmap
+data:
+  db_url: mysql-service.database # use the service from namespace database
+```
+
+# Useful tools
+### kubectx
+
+* Changing between different clusters easily;
+
+``` BASH
+$ brew install kubectx
+$ kubectx
+$ kubectx my-cluster
+```
+
+### kubens
+
+* No need for adding -n for every command
+
+``` Bash
+$ brew install kubens
+$ kubens
+$ kubens my-namespace
 ```
 
