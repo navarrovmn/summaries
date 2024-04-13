@@ -40,12 +40,12 @@ Its main components are:
 Kubernetes is divided between **worker nodes** and **control planes** (keep in mind you can have only one machine running both worker nodes and master nodes).
 
 A **worker node** needs at least 3 processes:
-* **Container Runtime***: responsible for actually running a container. It can be Docker or any other application for that;
+* **Container Runtime**: responsible for actually running a container. It can be Docker or any other application for that;
 * **Kubelet**: responsible for scheduling pods and containers. It acts as a interface layer between the host machine and the container runtime;
 * **Kube Proxy**: manages connectivity in the worker node, forwarding requests (with routing logics) to pods, etc;
 
 An **control plane** needs at least 4 processes:
-* **API Server***: acts as the cluster gateway. Responsible for authenticating and processing requests or queries in the cluster. Can be interacted via UI or CLIs as the entrypoint for the cluster;
+* **API Server**: acts as the cluster gateway. Responsible for authenticating and processing requests or queries in the cluster. Can be interacted via UI or CLIs as the entrypoint for the cluster;
 * **Scheduler**: processes requests coming from API Server and decides (with different logics) appropriate worker nodes for the resources. Then, it sends instructions to the worker node's kubelet, which will actually schedule the resource creation;
 * **Controller Manager**: responsible for keeping the cluster faithful to the desired state all the time, by detecting changes and recovering from broken states. Interacts with Scheduler to do so;
 * **etcd**: key-value store for the cluster, acting as its brain. Every change on the cluster is updated in this "DB";
@@ -82,7 +82,7 @@ $ kubectl apply -f mysql-configmap.yaml --namespace=my-namespace
 --- 
 Although you can create and manage resources with only kubectl, you obviously will not do so. Usually, a cluster is managed and versioned in Git with configuration files. Every configuration file (YAML) has:
 * A start point that tells what kind of resource is described in the file and the apiVersion of the resource;
-* **Metada***;
+* **Metada**;
 * **Spec**: specific for every resource, contains different configurations;
 
 Also, the resources have **status**, which is not on the file but is automatically generated and added by k8s. This information is stored in `etcd`.
@@ -300,7 +300,7 @@ spec:
 # Namespace
 ___
 * Organized resources between namespaces;
-	* * "Virtual clusters" inside k8s cluster;
+	*  "Virtual clusters" inside k8s cluster;
 * k8s has 4 default clusters:
 	* **kube-system**: system processes and managing processes;
 	* **kube-public**: publicly accessible data with a ConfigMap;
